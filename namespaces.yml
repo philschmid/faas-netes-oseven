@@ -14,4 +14,11 @@ metadata:
   labels:
     istio-injection: enabled
     role: openfaas-fn
-
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: openfaas-db
+  labels:
+    istio-injection: enabled
+    role: openfaas-db
