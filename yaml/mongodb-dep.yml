@@ -22,15 +22,6 @@ spec:
           # lifecycle:
           #   postStart:
           #     exec:
-          #       command:
-          #         - /bin/sh
-          #         - -c
-          #         - >
-                      # mongo --eval 'db = db.getSiblingDB("admin"); db.createUser({ user: "admin", pwd: "password", roles: [{ role: "root", db: "admin" }]});';
-
-                    # mongo 'use admin; db.createUser({ user: "admin", pwd: "password", roles: [{ role: "root", db: "admin" }]});';
-
-                    #  mongo --eval use admin db.createUser({ user: "admin", pwd: "password", roles: [{ role: "root", db: "admin" }]});
           # command: ['/bin/sh']
           # args:
           #   [
@@ -43,16 +34,16 @@ spec:
           # mv is not needed for later versions e.g. 3.4.19 and 4.1.7
           # - mongo -u admin -p password --authenticationDatabase admin test
           env:
-            # - name: MONGO_INITDB_ROOT_USERNAME
-            #   value: admin
-            # - name: MONGO_INITDB_ROOT_PASSWORD
-            #   value: password2
-            - name: MONGODB_USERNAME
+            - name: MONGO_INITDB_ROOT_USERNAME
               value: admin
-            - name: MONGODB_PASSWORD
-              value: password
-            - name: MONGODB_DATABASE
-              value: ebliq
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              value: password2
+            # - name: MONGODB_USERNAME
+            #   value: admin
+            # - name: MONGODB_PASSWORD
+            #   value: password
+            # - name: MONGODB_DATABASE
+            #   value: ebliq
           volumeMounts:
             - mountPath: /data/db
               name: mongodata
