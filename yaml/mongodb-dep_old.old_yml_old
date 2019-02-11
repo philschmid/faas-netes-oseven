@@ -1,0 +1,105 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: mongo-pv
+  namespace: openfaas-db
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: '/mnt/mongo_data'
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: mongo-pv-claim
+  namespace: openfaas-db
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: mongodb
+  namespace: openfaas-db
+spec:
+  serviceName: mongodb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        role: mongodb
+    spec:
+      containers:
+        - name: mongo
+          image: mongo:latest
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: mongo-pv
+              mountPath: /data/db
+          resources:
+            limits:
+              cpu: 1
+              memory: 2Gi
+            requests:
+              cpu: 0.2
+              memory: 512Mi
+      volumes:
+        - name: mongo-pv-storage
+          persistentVolumeClaim:
+            claimName: mongodb-pv
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  namespace: openfaas-db
+  labels:
+    name: mongo
+spec:
+  type: NodePort
+  ports:
+    - port: 27017
+      nodePort: 31705
+      targetPort: 27017
+  selector:
+    role: mongo
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mongo
+  namespace: openfaas-db
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: mongo
+    spec:
+      containers:
+      - name: mongo
+        image: mongo:latest
+        ports: 
+        - containerPort: 27017
+        imagePullPolicy: Always
+        env:
+        - name: MONGO_SIDECAR_POD_LABELS
+          value: "role=mongo,environment=test"
+        - name: MONGODB_USERNAME
+          value: admin
+        - name: MONGODB_PASSWORD
+          value: password
+        - name: MONGODB_DATABASE
+          value: admin

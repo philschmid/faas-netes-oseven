@@ -1,105 +1,64 @@
-kind: PersistentVolume
-apiVersion: v1
-metadata:
-  name: mongo-pv
-  namespace: openfaas-db
-  labels:
-    type: local
-spec:
-  storageClassName: manual
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: '/mnt/mongo_data'
----
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: mongo-pv-claim
-  namespace: openfaas-db
-spec:
-  storageClassName: manual
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
----
-apiVersion: apps/v1beta1
-kind: StatefulSet
+apiVersion: extensions/v1beta1
+kind: Deployment
 metadata:
   name: mongodb
   namespace: openfaas-db
 spec:
-  serviceName: mongodb
   replicas: 1
+  strategy:
+    type: Recreate
   template:
     metadata:
+      creationTimestamp: null
       labels:
-        role: mongodb
+        io.kompose.service: mongodb
     spec:
       containers:
-        - name: mongo
-          image: mongo:latest
+        - image: mongo
+          name: mongodb
           ports:
             - containerPort: 27017
+          resources: {}
+          # lifecycle:
+          #   postStart:
+          #     exec:
+          #       command:
+          #         - /bin/sh
+          #         - -c
+          #         - >
+                      # mongo --eval 'db = db.getSiblingDB("admin"); db.createUser({ user: "admin", pwd: "password", roles: [{ role: "root", db: "admin" }]});';
+
+                    # mongo 'use admin; db.createUser({ user: "admin", pwd: "password", roles: [{ role: "root", db: "admin" }]});';
+
+                    #  mongo --eval use admin db.createUser({ user: "admin", pwd: "password", roles: [{ role: "root", db: "admin" }]});
+          # command: ['/bin/sh']
+          # args:
+          #   [
+          #     '-c',
+          #     'mongo -u admin -p password --authenticationDatabase admin test',
+          #   ]
+          # command:
+          # - /bin/bash
+          # - -c
+          # mv is not needed for later versions e.g. 3.4.19 and 4.1.7
+          # - mongo -u admin -p password --authenticationDatabase admin test
+          env:
+            # - name: MONGO_INITDB_ROOT_USERNAME
+            #   value: admin
+            # - name: MONGO_INITDB_ROOT_PASSWORD
+            #   value: password2
+            - name: MONGODB_USERNAME
+              value: admin
+            - name: MONGODB_PASSWORD
+              value: password
+            - name: MONGODB_DATABASE
+              value: ebliq
           volumeMounts:
-            - name: mongo-pv
-              mountPath: /data/db
-          resources:
-            limits:
-              cpu: 1
-              memory: 2Gi
-            requests:
-              cpu: 0.2
-              memory: 512Mi
+            - mountPath: /data/db
+              name: mongodata
+      restartPolicy: Always
       volumes:
-        - name: mongo-pv-storage
+        - name: mongodata
           persistentVolumeClaim:
-            claimName: mongodb-pv
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: mongo
-  namespace: openfaas-db
-  labels:
-    name: mongo
-spec:
-  type: NodePort
-  ports:
-    - port: 27017
-      nodePort: 31705
-      targetPort: 27017
-  selector:
-    role: mongo
----
-apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
-  name: mongo
-  namespace: openfaas-db
-spec:
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        name: mongo
-    spec:
-      containers:
-      - name: mongo
-        image: mongo:latest
-        ports: 
-        - containerPort: 27017
-        imagePullPolicy: Always
-        env:
-        - name: MONGO_SIDECAR_POD_LABELS
-          value: "role=mongo,environment=test"
-        - name: MONGODB_USERNAME
-          value: admin
-        - name: MONGODB_PASSWORD
-          value: password
-        - name: MONGODB_DATABASE
-          value: admin
+            claimName: mongodata
+status: {}
