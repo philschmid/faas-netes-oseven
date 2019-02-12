@@ -10,13 +10,13 @@ basic_auth: false
 
 faasnetesd:
   image: openfaas/faas-netes:0.7.0
-  readTimeout : "60s"
-  writeTimeout : "60s"
-  imagePullPolicy : "Always"    # Image pull policy for deployed functions
-  httpProbe: false              # Setting to true will use a lock file for readiness and liveness (incompatible with Istio)
+  readTimeout: '60s'
+  writeTimeout: '60s'
+  imagePullPolicy: IfNotPresent # Image pull policy for deployed functions
+  httpProbe: false # Setting to true will use a lock file for readiness and liveness (incompatible with Istio)
   readinessProbe:
     initialDelaySeconds: 0
-    timeoutSeconds: 1           # Tuned-in to run checks early and quickly to support fast cold-start from zero replicas
+    timeoutSeconds: 1 # Tuned-in to run checks early and quickly to support fast cold-start from zero replicas
     periodSeconds: 1
   livenessProbe:
     initialDelaySeconds: 3
@@ -25,9 +25,9 @@ faasnetesd:
 
 gateway:
   image: openfaas/gateway:0.11.0
-  readTimeout : "65s"
-  writeTimeout : "65s"
-  upstreamTimeout : "60s"  # Must be smaller than read/write_timeout
+  readTimeout: '65s'
+  writeTimeout: '65s'
+  upstreamTimeout: '60s' # Must be smaller than read/write_timeout
   replicas: 1
   scaleFromZero: true
   # change the port when creating multiple releases in the same baremetal cluster
@@ -37,11 +37,11 @@ gateway:
 
 queueWorker:
   image: openfaas/queue-worker:0.5.4
-  ackWait : "60s"
+  ackWait: '60s'
   replicas: 1
 
 # image pull policy for openfaas components, can change to `IfNotPresent` in offline env
-openfaasImagePullPolicy: "Always"
+openfaasImagePullPolicy: 'Always'
 
 # replaces faas-netes with openfaas-operator
 operator:
@@ -82,7 +82,7 @@ faasIdler:
   image: openfaas/faas-idler:0.1.9
   inactivityDuration: 5m
   reconcileInterval: 30s
-  dryRun: true                          # Set to true to enable the idler to apply changes and scale to zero
+  dryRun: true # Set to true to enable the idler to apply changes and scale to zero
 
 nodeSelector: {}
 

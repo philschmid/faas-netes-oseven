@@ -16,7 +16,7 @@ spec:
         command:
           - "prometheus"
           - "--config.file=/etc/prometheus/prometheus.yml"
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 9090
           protocol: TCP
