@@ -41,7 +41,7 @@ queueWorker:
   replicas: 1
 
 # image pull policy for openfaas components, can change to `IfNotPresent` in offline env
-openfaasImagePullPolicy: 'Always'
+openfaasImagePullPolicy: 'IfNotPresent'
 
 # replaces faas-netes with openfaas-operator
 operator:
