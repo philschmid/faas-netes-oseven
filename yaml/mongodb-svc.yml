@@ -4,12 +4,10 @@ metadata:
   name: mongodb
   namespace: openfaas-db
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
-    - name: 'db-port'
-      port: 27017
-      targetPort: 27017
-      nodePort: 31705
+    - port: 27017
+      protocol: TCP
   selector:
     io.kompose.service: mongodb
 status:
