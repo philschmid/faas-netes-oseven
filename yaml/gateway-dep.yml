@@ -71,6 +71,8 @@ spec:
           value: "60s"
         - name: write_timeout
           value: "60s"
+        - name: image_pull_policy
+          value: "IfNotPresent"
         ports:
         - containerPort: 8081
           protocol: TCP
