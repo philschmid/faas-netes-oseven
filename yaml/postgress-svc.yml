@@ -6,11 +6,19 @@ metadata:
   labels:
     app: postgres
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
-  - name: db-port
-    nodePort: 31704
-    port: 5432
-    protocol: TCP
+    - port: 5432
+      protocol: TCP
   selector:
     app: postgres
+# spec:
+#   type: ExternalName
+#   clusterIP: None
+#   externalName: service-x.namespace-b.svc.cluster.local
+#   ports:
+#   - name: db-port
+#     nodePort: 31704
+#     port: 5432
+
+  
